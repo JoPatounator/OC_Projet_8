@@ -17,57 +17,125 @@ const slides = [
 	}
 ]
 
+//---------------------------------------------------- Initialisation ---------------------------------------------------------
+let fichierImgActuel = "";
+let indexImgActuelle = null;
+create_points();
+synchro_point();
+nom_image_actuelle();
+indexImgActuelle = find_index(fichierImgActuel);
+synchro_point(indexImgActuelle);
+//debugVariables(fichierImgActuel, indexImgActuelle);
+//-----------------------------------------------------------------------------------------------------------------------------
 
+//------------------------------------------------- Fonction création des points ----------------------------------------------
+function create_points() {
+	let conteneurPoints = document.querySelector('.liste_dots');
+	conteneurPoints.innerHTML = '';
+	let pointsHtml = '';
+	for (let nombrePoints = 0; nombrePoints < slides.length; nombrePoints++) {
+		pointsHtml += '<li class="dot"></li>';
+	}
+	conteneurPoints.innerHTML = pointsHtml;
+}
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------- Fonction de debug  ------------------------------------------------
+function debugVariables(fichierImgActuel, indexImgActuelle) {
+	console.log("Nom du fichier de l'image actuellement chargée -----> " + nom_image_actuelle());
+	console.log("Index de l'image actuelle -----> " + find_index(fichierImgActuel));
+}
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//---------------------------------------------------- Evènements click Gauche / Droite ---------------------------------------
 // Événement onclick flèche gauche
 let flecheGauche = document.querySelector(".arrow_left");
-flecheGauche.onclick =
-	function () {
-		console.log("Flèche gauche cliquée");
-
-	};
+flecheGauche.onclick = function () {
+	//console.log("Flèche gauche cliquée");
+	fichierImgActuel = nom_image_actuelle();
+	indexImgActuelle = find_index(fichierImgActuel);
+	indexImgActuelle = defil_image_left(indexImgActuelle);
+	maj_imgtxt_slider(indexImgActuelle);
+	synchro_point(indexImgActuelle);
+	//debugVariables(fichierImgActuel, indexImgActuelle);
+};
 
 // Événement onclick flèche droite
 let flecheDroite = document.querySelector(".arrow_right");
-flecheDroite.onclick =
-	function () {
-		console.log("Flèche droite cliquée");
-	};
+flecheDroite.onclick = function () {
+	//console.log("Flèche droite cliquée");
+	fichierImgActuel = nom_image_actuelle();
+	indexImgActuelle = find_index(fichierImgActuel);
+	indexImgActuelle = defil_image_right(indexImgActuelle);
+	maj_imgtxt_slider(indexImgActuelle);
+	synchro_point(indexImgActuelle);
+	//debugVariables(fichierImgActuel, indexImgActuelle);
+};
+//-----------------------------------------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------Debug --------------------------------------
-let nombreSlides = slides.length;
-console.log(nombreSlides);
-//----------------------------------------------------------------------------------------------------
-// *********************************************** Identification de l'image actuelle *************************************
-bannerImg = document.querySelector('.banner-img');
-bannerImgSrc = bannerImg.currentSrc;
-console.log(bannerImgSrc);
-decoupeSrcImg = bannerImgSrc.split('/');
-fichierImgActuel = decoupeSrcImg.pop();
-console.log(fichierImgActuel);
-//indexImgActuelle = slides.indexOf("slide1.jpg");
-find_index(fichierImgActuel);
-
-//------------------------------------------------ Fonction de défilement images -----------------------------------------
-function defil_image() {
-	indexActuel = find_index(fichierImgActuel);
-
-
+// -------------------------------------------- Identification de l'image actuelle --------------------------------------------
+function nom_image_actuelle() {
+	bannerImg = document.querySelector('.banner-img');
+	bannerImgSrc = bannerImg.currentSrc;
+	decoupeSrcImg = bannerImgSrc.split('/');
+	fichierImgActuel = decoupeSrcImg.pop();
+	return fichierImgActuel;
 }
-//------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------
 
-//------------------------------------------------ Fonction de recherche d'index -----------------------------------------
+//------------------------------------------------ Fonction de recherche d'index ----------------------------------------------
 function find_index(fichierImgActuel) {
-	for (let i = 0; i < slides.length; i++) {
-		console.log(slides[i].image);
-		if (slides[i].image === fichierImgActuel) {
-			indexImgActuelle = i + 1;
-			console.log(indexImgActuelle);
+	for (indexImgActuelle = 0; indexImgActuelle < slides.length; indexImgActuelle++) {
+		if (slides[indexImgActuelle].image === fichierImgActuel) {
 			return indexImgActuelle;
 		}
 	}
-};
-//-------------------------------------------------------------------------------------------------------------------------
+	return -1;  // -1 si image non trouvée
+}
+//-----------------------------------------------------------------------------------------------------------------------------
 
-//----------------------------------------------- Construction des points -------------------------------------------------
+//--------------------------------------- Activation du point en focntion de l'image ------------------------------------------
+function synchro_point(indexImgActuelle) {
+	let points = document.querySelectorAll('.dot');
+	for (let i = 0; i < points.length; i++) {
+		if (i === indexImgActuelle) {
+			points[i].classList.add('dot_selected');
+		} else {
+			points[i].classList.remove('dot_selected');
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------- Mise a jour image texte du slider --------------------------------------------
+function maj_imgtxt_slider(indexImgActuelle) {
+	let nouvelleImageSrc = `./assets/images/slideshow/${slides[indexImgActuelle].image}`;
+	//console.log(nouvelleImageSrc);
+	document.querySelector('.banner-img').src = nouvelleImageSrc;
+	document.querySelector('#banner p').innerHTML = slides[indexImgActuelle].tagLine;
+}
+//-----------------------------------------------------------------------------------------------------------------------------
+
+//------------------------------------------------ Fonctions de défilement images ---------------------------------------------
+function defil_image_left(indexImgActuelle) {
+	indexImgActuelle--;
+	if (indexImgActuelle < 0) {
+		indexImgActuelle = slides.length - 1;
+	}
+	//debugVariables(fichierImgActuel, indexImgActuelle);
+	return indexImgActuelle;
+}
+
+function defil_image_right(indexImgActuelle) {
+	indexImgActuelle++;
+	if (indexImgActuelle >= slides.length) {
+		indexImgActuelle = 0;
+	}
+	//debugVariables(fichierImgActuel, indexImgActuelle);
+	return indexImgActuelle;
+}
+//-----------------------------------------------------------------------------------------------------------------------------
+
+
+
+
